@@ -56,11 +56,11 @@ func main() {
 
 	// Создаём клиентские запросы
 	operations := []CalculationRequest{
-		{A: 10, B: 20, Op: "+", Result: make(chan float64), Error: make(chan error)},
-		{A: 15, B: 5, Op: "-", Result: make(chan float64), Error: make(chan error)},
-		{A: 7, B: 3, Op: "*", Result: make(chan float64), Error: make(chan error)},
-		{A: 40, B: 0, Op: "/", Result: make(chan float64), Error: make(chan error)},
-		{A: 16, B: 4, Op: "/", Result: make(chan float64), Error: make(chan error)},
+		{A: 15, B: 10, Op: "+", Result: make(chan float64), Error: make(chan error)},
+		{A: 5, B: 15, Op: "-", Result: make(chan float64), Error: make(chan error)},
+		{A: 17, B: 2, Op: "*", Result: make(chan float64), Error: make(chan error)},
+		{A: 12, B: 4, Op: "/", Result: make(chan float64), Error: make(chan error)},
+		{A: 12, B: 0, Op: "/", Result: make(chan float64), Error: make(chan error)},
 	}
 
 	// Используем WaitGroup для клиентских горутин
