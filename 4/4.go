@@ -2,52 +2,51 @@ package main
 
 import (
 	"fmt"
-	"sync"
+	"math/rand"
+	"time"
 )
-
-var (
-	counter int
-	mutex   sync.Mutex
-)
-
-func increment(wg *sync.WaitGroup) {
-	defer wg.Done()
-	for i := 0; i < 1000; i++ {
-		// Блокировка мьютекса для предотвращения гонки данных
-		mutex.Lock()
-		counter++
-		mutex.Unlock()
-	}
-}
 
 func main() {
-	var wg sync.WaitGroup
+	rand.Seed(time.Now().UnixNano())
 
-	// Запускаем 10 горутин
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		go increment(&wg)
-	}
+	numberChannel := make(chan int)
+	parityChannel := make(chan string)
 
-	wg.Wait()
+	// Горутина для генерации случайных чисел
+	go func() {
+		for i := 0; i < 10; i++ {
+			numberChannel <- rand.Intn(100)
+			time.Sleep(time.Millisecond)
+		}
+		close(numberChannel)
+	}()
 
-	fmt.Println("Final counter value with mutex:", counter)
-
-	// Теперь уберем мьютекс для сравнения
-	counter = 0
-	wg.Add(0)
-
-	// Запускаем 10 горутин без мьютекса
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for j := 0; j < 1000; j++ {
-				counter++
+	// Горутина для проверки четности/нечетности
+	go func() {
+		for {
+			num := <-numberChannel
+			if num%2 == 0 {
+				parityChannel <- fmt.Sprintf("%d: четное", num)
+			} else {
+				parityChannel <- fmt.Sprintf("%d: нечетное", num)
 			}
-		}()
-	}
+		}
+	}()
 
-	wg.Wait()
-	fmt.Println("Final counter value without mutex:", counter)
+	for {
+		select {
+		case num, ok := <-numberChannel:
+			if !ok {
+				fmt.Println("Канал numberChannel закрыт")
+				return
+			}
+			fmt.Printf("Случайное число: %d\n", num)
+		case parity, ok := <-parityChannel:
+			if !ok {
+				fmt.Println("Канал parityChannel закрыт")
+				return
+			}
+			fmt.Printf("Чётность/Нечётность: %s\n", parity)
+		}
+	}
 }
