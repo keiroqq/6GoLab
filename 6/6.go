@@ -29,7 +29,7 @@ func worker(id int, jobs <-chan Job, results chan<- string, wg *sync.WaitGroup) 
 }
 
 func main() {
-	numWorkers := 3
+	numWorkers := 5
 	jobs := make(chan Job, 100)
 	results := make(chan string, 100)
 
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	// Чтение из файла
-	file, err := os.Open("C:\\Users\\Urahara\\Desktop\\projects\\go\\6\\6\\input.txt")
+	file, err := os.Open("C:\\Users\\quertyy\\go\\src\\6thGo-main\\6\\input.txt")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
