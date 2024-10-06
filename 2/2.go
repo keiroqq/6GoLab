@@ -2,25 +2,29 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
-func fibonacci(n int, ch chan<- int) {
-	a, b := 0, 1
-	for i := 0; i < n; i++ {
-		ch <- a
-		a, b = b, a+b
+func fibonacci(n int, c chan int) {
+	x, y := 0, 1
+	for i := 2; i < n; i++ {
+		c <- x
+		x, y = y, x+y
 	}
-	close(ch) // Закрываем канал после завершения генерации
+	close(c)
+}
+
+func printFibonacci(c chan int) {
+	for n := range c {
+		fmt.Println(n)
+	}
 }
 
 func main() {
-	n := 10
-	ch := make(chan int)
+	c := make(chan int)
 
-	go fibonacci(n, ch) // Запускаем горутину для генерации чисел Фибоначчи
+	go fibonacci(10, c)  // Запускаем горутину для генерации чисел Фибоначчи
+	go printFibonacci(c) // Запускаем горутину для вывода чисел на экран
 
-	// Чтение из канала и вывод на экран
-	for num := range ch {
-		fmt.Println(num)
-	}
+	time.Sleep(1 * time.Second)
 }
