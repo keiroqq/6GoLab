@@ -14,11 +14,11 @@ func main() {
 
 	// Горутина для генерации случайных чисел
 	go func() {
-		for {
-			num := rand.Intn(100) // Генерируем случайное число от 0 до 99
-			numberChannel <- num
-			time.Sleep(time.Second) // Замедляем генерацию
+		for i := 0; i < 10; i++ {
+			numberChannel <- rand.Intn(100)
+			time.Sleep(time.Millisecond)
 		}
+		close(numberChannel)
 	}()
 
 	// Горутина для проверки четности/нечетности
@@ -33,13 +33,20 @@ func main() {
 		}
 	}()
 
-	// Горутина для получения и вывода сообщений
-	go func() {
-		for msg := range parityChannel {
-			fmt.Println(msg)
+	for {
+		select {
+		case num, ok := <-numberChannel:
+			if !ok {
+				fmt.Println("Канал numberChannel закрыт")
+				return
+			}
+			fmt.Printf("Случайное число: %d\n", num)
+		case parity, ok := <-parityChannel:
+			if !ok {
+				fmt.Println("Канал parityChannel закрыт")
+				return
+			}
+			fmt.Printf("Чётность/Нечётность: %s\n", parity)
 		}
-	}()
-
-	// Бесконечный цикл, чтобы основная программа не завершалась
-	select {}
+	}
 }
